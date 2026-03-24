@@ -64,7 +64,7 @@ Viết code blink led trong file main.c
 
 Chương trình sử dụng các hàm I/O chuẩn (`fopen`, `fprintf`) để thao tác với các file ảo của hệ thống Sysfs:
 
-```bash
+```c
 cat << 'EOF' > package/blink_led/src/main.c
 #include <stdio.h>
 #include <stdlib.h>
