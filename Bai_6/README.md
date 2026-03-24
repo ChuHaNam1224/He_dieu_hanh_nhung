@@ -42,7 +42,6 @@ echo 60 > /sys/class/gpio/unexport
 ```
 
 ### 3. Kết quả nghiệm thu
-*(KÉO THẢ ẢNH CHỤP MÀN HÌNH TERMINAL THỰC HIỆN CÁC LỆNH TRÊN VÀO ĐÂY)*
 <img width="786" height="353" alt="image" src="https://github.com/user-attachments/assets/dbe7d185-9fdf-4d5d-a518-bccd218ea5e4" />
 
 ---
