@@ -1,10 +1,6 @@
 
 # BÁO CÁO: HỆ ĐIỀU HÀNH NHÚNG - ỨNG DỤNG TỔNG HỢP
 
-**Sinh viên thực hiện:** Chnam24
-**Môn học:** Hệ điều hành nhúng
-**Thiết bị phần cứng:** BeagleBone Black (BBB)
-
 ---
 
 ## BÀI 1: GIAO TIẾP VỚI DEVICE DRIVER BẰNG LỆNH COMMAND LINE
@@ -47,8 +43,7 @@ echo 60 > /sys/class/gpio/unexport
 
 ### 3. Kết quả nghiệm thu
 *(KÉO THẢ ẢNH CHỤP MÀN HÌNH TERMINAL THỰC HIỆN CÁC LỆNH TRÊN VÀO ĐÂY)*
-
-*(KÉO THẢ ẢNH HOẶC GIF BO MẠCH BBB ĐANG SÁNG ĐÈN LED VÀO ĐÂY)*
+<img width="786" height="353" alt="image" src="https://github.com/user-attachments/assets/dbe7d185-9fdf-4d5d-a518-bccd218ea5e4" />
 
 ---
 
