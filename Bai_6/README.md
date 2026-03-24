@@ -131,7 +131,7 @@ EOF
 ```
 
 **Bước 3: Viết quy trình biên dịch tự động (blink_led.mk)**
-```bash
+```makefile
 cat << 'EOF' > package/blink_led/blink_led.mk
 BLINK_LED_VERSION = 1.0
 BLINK_LED_SITE = $(BLINK_LED_PKGDIR)/src
@@ -220,7 +220,7 @@ EOF
 **Bước 2: Cập nhật Buildroot Hook**
 Thêm chỉ thị `_INSTALL_INIT_SYSV` vào file `blink_led.mk` ở bài trước để Buildroot tự động copy kịch bản trên vào đúng thư mục `/etc/init.d/` của RootFS.
 
-```bash
+```makefile
 cat << 'EOF' > package/blink_led/blink_led.mk
 BLINK_LED_VERSION = 1.0
 BLINK_LED_SITE = $(BLINK_LED_PKGDIR)/src
