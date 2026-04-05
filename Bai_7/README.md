@@ -44,9 +44,7 @@ static struct class *my_class;  /* Lớp thiết bị */
 static struct device *my_device;/* Thiết bị */
 void __iomem *gpio_base_addr;   /* Con trỏ chứa địa chỉ ảo sau khi ioremap */
 
-/* =========================================================================
- * --- YÊU CẦU 1: Các hàm Open/Release/Read/Write cơ bản ---
- * ========================================================================= */
+/* Viết các hàm Open/Release/Read/Write*/
 static int my_open(struct inode *inode, struct file *file) {
     pr_info("Driver: Mo file thiet bi thanh cong!\n");
     return 0;
