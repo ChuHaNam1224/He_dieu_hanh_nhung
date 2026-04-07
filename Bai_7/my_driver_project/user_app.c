@@ -14,7 +14,7 @@ int main() {
     /* Open Driver */
     fd = open(DEVICE_PATH, O_RDWR);
     if (fd < 0) {
-        printf("Loi: Khong the mo %s. Ban da nap file .ko vao chua?\n", DEVICE_PATH);
+        printf("Loi: Khong the mo %s.\n", DEVICE_PATH);
         return -1;
     }
     printf("Mo file thiet bi thanh cong! Bat dau test...\n");
