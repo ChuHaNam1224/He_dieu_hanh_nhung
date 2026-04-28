@@ -130,23 +130,23 @@ arm-buildroot-linux-gnueabihf-gdb ./test_gdb
 <img width="1063" height="272" alt="Screenshot from 2026-04-28 22-09-22" src="https://github.com/user-attachments/assets/a8073dcb-73fc-4cce-8317-4e11deef7e3c" />
 
 **Bước 3: Thực thi các lệnh điều khiển luồng (Kết quả test)**
-[1] Thêm/Xóa Breakpoint:
+1. Thêm/Xóa Breakpoint:
 - b main: Đặt điểm dừng tại đầu hàm main.
 - b 13: Đặt điểm dừng tại một dòng code cụ thể (dòng 13).
 - info b: Liệt kê các điểm dừng đang hoạt động.
-[2] Thực thi điều khiển chạy:
+2. Thực thi điều khiển chạy:
 - c (Continue): Tiếp tục chạy đến điểm dừng tiếp theo.
 - n (Next): Chạy qua dòng lệnh hiện tại (bước qua hàm, không đi sâu vào trong).
 - s (Step): Nhảy vào bên trong hàm con để gỡ lỗi chi tiết.
-[3] In giá trị biến:
+3. In giá trị biến:
 - p bien_dem: Xuất giá trị hiện tại của biến. (Quá trình test có ghi nhận và xử lý thành công hiện tượng mất dấu biến (Out of Scope) khi step vào hàm con, sử dụng lệnh up/frame để điều hướng Call Stack).
-[4] Gán giá trị biến (Runtime Modification):
+4. Gán giá trị biến (Runtime Modification):
 - set bien_dem = 48: Can thiệp trực tiếp vào bộ nhớ RAM, ép biến đếm thay đổi giá trị để tua nhanh tiến trình kiểm thử vòng lặp while.
-[5] Xem giá trị thanh ghi:
+5. Xem giá trị thanh ghi:
 - info registers: Xuất trạng thái các thanh ghi ARM (r0-r12, sp, lr, pc). Xác nhận được sự ánh xạ của biến cục bộ lên thanh ghi vật lý (VD: r3 = 0x31 tương đương 49).
-[6] Xem trạng thái Stack trace:
+6. Xem trạng thái Stack trace:
 - bt (Backtrace): Truy xuất lịch sử gọi hàm để xác định đường dẫn thực thi hiện tại.
-[7] Kết thúc phiên:
+7. Kết thúc phiên:
 - q (Quit): Ngắt kết nối GDB an toàn và tự động dọn dẹp tiến trình trên Target.
 
 <img width="975" height="1088" alt="Screenshot from 2026-04-28 11-29-12" src="https://github.com/user-attachments/assets/74358412-b133-4df6-8826-0c047936b348" />
