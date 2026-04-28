@@ -242,3 +242,68 @@ valgrind --leak-check=full ./leak
 
 
 ---
+
+## Bài tập 2.4: Phân tích Core Dump
+
+### 1. Mục tiêu
+- Cấu hình hệ điều hành Linux tự động sinh ra tệp `core dump` (hộp đen) khi một tiến trình bị crash (đột tử).
+- Sử dụng công cụ `cross-gdb` trên Host để phân tích tệp core này, từ đó truy vết chính xác nguyên nhân và dòng code gây ra lỗi ngoại lệ (như Segmentation Fault).
+
+### 2. Chuẩn bị chương trình gây lỗi
+1. Tạo tệp `crash.c` chứa lỗi:
+```c
+#include <stdio.h>
+
+void cause_crash() {
+    int *ptr = NULL; 
+    *ptr = 42; // Cố tình ghi vào vùng nhớ 0x0 -> Gây lỗi Segmentation Fault
+}
+
+int main() {
+    cause_crash();
+    return 0;
+}
+```
+2. Biên dịch: Sử dụng Cross-Compiler của Buildroot (bắt buộc gắn cờ -g):
+```bash
+arm-buildroot-linux-gnueabihf-gcc -g crash.c -o crash_test
+```
+3. chép tệp crash_test sang thư mục /root/ của Target BBB
+```bash
+sudo cp crash_test /media/chnam24/rootfs/root/
+```
+
+### 3. Thực thi và thu thập Core Dump (Trên Target)
+Mặc định, Linux giới hạn kích thước tệp core bằng 0 để tiết kiệm bộ nhớ. Cần cấu hình lại giới hạn này trên Target trước khi chạy phần mềm.
+**Bước 1: Xóa bỏ giới hạn dung lượng tệp core:**
+```bash
+ulimit -c unlimited
+```
+**Bước 2: Chạy phần mềm để kích hoạt lỗi:**
+```bash
+./crash_test
+```
+Kết quả: Hệ thống báo lỗi Segmentation fault (core dumped). Một tệp mới có tên là 'core' được hệ điều hành sinh ra tại thư mục hiện tại. Tệp này chứa toàn bộ hình ảnh bộ nhớ (RAM/Thanh ghi) của tiến trình ngay tại thời điểm xảy ra crash.
+
+### 4. Phân tích Core Dump (Trên Host)
+
+**Bước 1: Copy tệp core từ Target về Host PC và cấp quyền đọc ghi:**
+```bash
+sudo cp /media/chnam24/rootfs/root/core
+sudo chown chnam24:chnam24 core
+```
+Sử dụng cờ -g để Valgrind có thể ánh xạ địa chỉ bộ nhớ bị lỗi về chính xác dòng code trong tệp nguồn C.
+
+**Bước 2: Khởi chạy GDB với tham số là tệp thực thi và tệp core:**
+Sử dụng lệnh kiểm tra mức độ chi tiết nhất:
+```bash
+arm-buildroot-linux-gnueabihf-gdb ./crash_test ./core
+```
+
+**Bước 3: Đọc kết luận và truy vết (Backtrace):**
+Ngay khi load, GDB chỉ điểm vị trí sập hệ thống. Sử dụng thêm lệnh bt để xem Call Stack:
+
+<img width="984" height="962" alt="Screenshot from 2026-04-29 00-10-40" src="https://github.com/user-attachments/assets/72389404-1739-4cfe-a20b-03209dcca3ff" />
+
+
+---
