@@ -16,18 +16,16 @@ cd ~/buildroot-2023.11.1
 make menuconfig
 ```
 Thực hiện cấu hình 2 mục sau:
-
 1. Cấu hình Toolchain (Bật C++ và Host GDB):
 - Đi theo đường dẫn: Toolchain  --->
 - Đánh dấu [*] Enable C++ support
 - Đánh dấu [*] Build cross gdb for the host
-
 2. Đóng gói gdbserver vào Target:
 - Đi ra màn hình chính, vào Target packages  --->
 - Vào Debugging, profiling and benchmark  --->
 - Đánh dấu [*] gdb và chọn thêm [*] gdbserver ở menu con bên dưới.
-
 Lưu cấu hình (Save) và thoát (Exit).
+
 
 **Bước 2: Biên dịch lại hệ thống**
 Do có sự thay đổi cốt lõi ở phần Toolchain (thêm C++), bắt buộc phải dọn dẹp hệ thống cũ và biên dịch lại từ đầu.
@@ -36,6 +34,7 @@ make clean
 make
 ```
 (Quá trình mất khoảng 45 phút - 1 tiếng).
+
 
 **Bước 3: Chép "gdbserver" và Thư viện C++ sang mạch (Qua thẻ nhớ)**
 Sau khi biên dịch xong, đưa file thực thi gdbserver và bộ thư viện động của C++ sang bo mạch BBB.
@@ -55,12 +54,14 @@ sudo umount /media/chnam24/rootfs
 sudo umount /media/chnam24/boot
 ```
 
+
 **Bước 4: Kiểm tra kết quả**
 Cắm thẻ nhớ lại vào BBB, cấp nguồn và đăng nhập vào Terminal của BBB qua Serial.
 Gõ lệnh kiểm tra phiên bản:
 ```bash
 gdbserver --version
 ```
+
 
 ### 3. Kết quả nghiệm thu
 <img width="768" height="331" alt="image" src="https://github.com/user-attachments/assets/8b14dd3a-5b97-4f1f-a3e8-08bf532a5303" />
