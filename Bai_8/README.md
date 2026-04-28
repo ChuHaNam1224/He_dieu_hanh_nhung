@@ -67,6 +67,7 @@ gdbserver --version
 <img width="768" height="331" alt="image" src="https://github.com/user-attachments/assets/8b14dd3a-5b97-4f1f-a3e8-08bf532a5303" />
 Kết quả: Màn hình trả về thông tin phiên bản và kiến trúc chính xác của chip ARM.
 
+---
 
 ## Bài tập 2.2: Thực hiện sử dụng gdb để điều khiển luồng cơ bản chương trình từ host -> target.
 
@@ -152,5 +153,92 @@ arm-buildroot-linux-gnueabihf-gdb ./test_gdb
 <img width="975" height="1088" alt="Screenshot from 2026-04-28 11-29-12" src="https://github.com/user-attachments/assets/74358412-b133-4df6-8826-0c047936b348" />
 <img width="975" height="1088" alt="Screenshot from 2026-04-28 11-29-18" src="https://github.com/user-attachments/assets/7381c63f-51f3-411c-85d7-7ff50ec71860" />
 <img width="975" height="1088" alt="Screenshot from 2026-04-28 11-29-21" src="https://github.com/user-attachments/assets/12738661-6457-480e-af5e-f59036248968" />
+
+---
+
+## Bài tập 2.3: Phân tích về Bộ nhớ
+
+### 1. Mục tiêu
+Sử dụng công cụ Valgrind Memcheck để phát hiện các lỗi quản lý bộ nhớ tiềm ẩn mà trình biên dịch thông thường không phát hiện được.
+
+### 2. Các bước thực hiện
+**Bước 1: Cài đặt công cụ phân tích trên Host (Ubuntu)**
+```bash
+sudo apt update 
+sudo apt install valgrind -y
+```
+
+**Bước 2: Tạo chương trình mẫu có lỗi rò rỉ bộ nhớ**
+Tạo file leak.c thực hiện cấp phát 400 bytes nhưng cố tình không thu hồi trước khi chương trình kết thúc.
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+ 
+
+void error_func() {
+    // Xin hệ điều hành 400 bytes RAM
+    int *data_arr = (int *)malloc(100 * sizeof(int));
+
+    // Giả sử có thao tác gì đó với dữ liệu
+    data_arr[0] = 99;
+
+    // Kết thúc hàm nhưng không gọi lệnh trả tiền "free(data_arr);"
+    // Biến con trỏ 'data_arr' sẽ biến mất, nhưng 400 bytes RAM kia vẫn bị treo cứng vĩnh viễn!
+}
+
+int main() {
+    printf("--- START TEST VALGRIND ---\n");
+    error_func();
+    printf("--- END TEST ---\n");
+    return 0;
+}
+```
+
+**Bước 3: Biên dịch chương trình với ký hiệu gỡ lỗi**
+```bash
+gcc -g leak.c -o leak
+```
+Sử dụng cờ -g để Valgrind có thể ánh xạ địa chỉ bộ nhớ bị lỗi về chính xác dòng code trong tệp nguồn C.
+**Bước 4: Biên dịch chương trình với ký hiệu gỡ lỗi**
+Sử dụng lệnh kiểm tra mức độ chi tiết nhất:
+```bash
+valgrind --leak-check=full ./leak
+```
+<img width="933" height="615" alt="valgrind phat hien loi leak ram" src="https://github.com/user-attachments/assets/f882a57b-88c7-4a7d-af89-9baa807683aa" />
+
+**Bước 5: Vá lỗi và Kiểm tra lại**
+Bổ sung lệnh "free(data_arr);" vào cuối phạm vi sử dụng của biến.
+```c
+#include <stdio.h>
+#include <stdlib.h>
+ 
+
+void error_func() {
+    // Xin hệ điều hành 400 bytes RAM
+    int *data_arr = (int *)malloc(100 * sizeof(int));
+
+    // Giả sử có thao tác gì đó với dữ liệu
+    data_arr[0] = 99;
+
+    // Vá lỗi 
+    free(data_arr);
+}
+
+int main() {
+    printf("--- START TEST VALGRIND ---\n");
+    error_func();
+    printf("--- END TEST ---\n");
+    return 0;
+}
+```
+
+Biên dịch và chạy lại Valgrind.
+```bash
+gcc -g leak.c -o leak
+valgrind --leak-check=full ./leak
+```
+<img width="932" height="424" alt="Screenshot from 2026-04-28 22-44-52" src="https://github.com/user-attachments/assets/d3dd11af-9614-4196-91ae-df6b8de7390f" />
+
 
 ---
