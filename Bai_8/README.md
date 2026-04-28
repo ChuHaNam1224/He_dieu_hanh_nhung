@@ -67,4 +67,90 @@ gdbserver --version
 <img width="768" height="331" alt="image" src="https://github.com/user-attachments/assets/8b14dd3a-5b97-4f1f-a3e8-08bf532a5303" />
 Kết quả: Màn hình trả về thông tin phiên bản và kiến trúc chính xác của chip ARM.
 
+
+## Bài tập 2.2: Thực hiện sử dụng gdb để điều khiển luồng cơ bản chương trình từ host -> target.
+
+### 1. Mục tiêu
+Thiết lập kết nối Remote Debugging giữa máy tính Ubuntu (Host) và mạch BBB (Target). Sử dụng GDB để can thiệp trực tiếp vào tiến trình đang chạy: đặt điểm dừng, chạy từng bước, xem/thay đổi giá trị biến theo thời gian thực và truy xuất thanh ghi bộ vi xử lý.
+
+### 2. Chuẩn bị
+**2.1. Mã nguồn và biên dịch**
+Viết một chương trình C cơ bản (`test_gdb.c`) chứa vòng lặp và gọi hàm.
+```c
+#include <stdio.h>
+#include <unistd.h>
+
+void in_lan_dem(int lan) {
+    printf("Dem lan %d\n", lan);
+}
+
+int main() {
+    int bien_dem = 0;
+    printf("--- START TEST GDB ---\n");
+    
+    while(bien_dem < 50) {
+        bien_dem = bien_dem + 1;
+        in_lan_dem(bien_dem);
+        sleep(1); // Dung 1 giay
+    }
+    
+    printf("--- END! ---\n");
+    return 0;
+}
+```
+
+Biên dịch bằng Cross-Compiler, bắt buộc đi kèm cờ gỡ lỗi `-g` để giữ lại symbol (tên biến, số dòng) cho GDB:
+```bash
+arm-buildroot-linux-gnueabihf-gcc -g test_gdb.c -o test_gdb
+```
+
+**2.2. Thiết lập đường truyền mạng (USB Ethernet Interface)**
+Kết nối hệ thống máy tính và BBB qua giao diện mạng ảo USB (CDC Ethernet).
+
+Trên Target (BBB): Kích hoạt driver g_ether và gán IP tĩnh:
+```bash
+modprobe g_ether
+ifconfig usb0 192.168.7.2 up
+```
+
+Trên Host (Ubuntu): Thiết lập cấu hình IP tĩnh cho card mạng USB tương ứng là 192.168.7.1 và thực hiện ping 192.168.7.2 để xác nhận đường truyền thông suốt.
+
+### 3. Các bước Gỡ lỗi
+**Bước 1: Khởi tạo Server gỡ lỗi (Trên Target)**
+Chạy gdbserver để mở cổng mạng 1234 và đính kèm vào phần mềm:
+```bash
+gdbserver 192.168.7.2:1234 ./test_gdb
+```
+
+**Bước 2: Khởi tạo Client gỡ lỗi & Kết nối (Trên Host)**
+```bash
+arm-buildroot-linux-gnueabihf-gdb ./test_gdb
+(gdb) target remote 192.168.7.2:1234
+```
+<img width="1063" height="272" alt="Screenshot from 2026-04-28 22-09-22" src="https://github.com/user-attachments/assets/a8073dcb-73fc-4cce-8317-4e11deef7e3c" />
+
+**Bước 3: Thực thi các lệnh điều khiển luồng (Kết quả test)**
+[1] Thêm/Xóa Breakpoint:
+- b main: Đặt điểm dừng tại đầu hàm main.
+- b 13: Đặt điểm dừng tại một dòng code cụ thể (dòng 13).
+- info b: Liệt kê các điểm dừng đang hoạt động.
+[2] Thực thi điều khiển chạy:
+- c (Continue): Tiếp tục chạy đến điểm dừng tiếp theo.
+- n (Next): Chạy qua dòng lệnh hiện tại (bước qua hàm, không đi sâu vào trong).
+- s (Step): Nhảy vào bên trong hàm con để gỡ lỗi chi tiết.
+[3] In giá trị biến:
+- p bien_dem: Xuất giá trị hiện tại của biến. (Quá trình test có ghi nhận và xử lý thành công hiện tượng mất dấu biến (Out of Scope) khi step vào hàm con, sử dụng lệnh up/frame để điều hướng Call Stack).
+[4] Gán giá trị biến (Runtime Modification):
+- set bien_dem = 48: Can thiệp trực tiếp vào bộ nhớ RAM, ép biến đếm thay đổi giá trị để tua nhanh tiến trình kiểm thử vòng lặp while.
+[5] Xem giá trị thanh ghi:
+- info registers: Xuất trạng thái các thanh ghi ARM (r0-r12, sp, lr, pc). Xác nhận được sự ánh xạ của biến cục bộ lên thanh ghi vật lý (VD: r3 = 0x31 tương đương 49).
+[6] Xem trạng thái Stack trace:
+- bt (Backtrace): Truy xuất lịch sử gọi hàm để xác định đường dẫn thực thi hiện tại.
+[7] Kết thúc phiên:
+- q (Quit): Ngắt kết nối GDB an toàn và tự động dọn dẹp tiến trình trên Target.
+
+<img width="975" height="1088" alt="Screenshot from 2026-04-28 11-29-12" src="https://github.com/user-attachments/assets/74358412-b133-4df6-8826-0c047936b348" />
+<img width="975" height="1088" alt="Screenshot from 2026-04-28 11-29-18" src="https://github.com/user-attachments/assets/7381c63f-51f3-411c-85d7-7ff50ec71860" />
+<img width="975" height="1088" alt="Screenshot from 2026-04-28 11-29-21" src="https://github.com/user-attachments/assets/12738661-6457-480e-af5e-f59036248968" />
+
 ---
